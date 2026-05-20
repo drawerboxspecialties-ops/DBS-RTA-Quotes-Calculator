@@ -10,7 +10,7 @@ export const FORMULA_CONFIG = {
     // Add or adjust your shop's customer account numbers and specific margins here
     accountMargins: {
         "1001": 35,  // Account 1 -> 35% Margin
-        "1002": 30,  // Account 2 -> 30% Margin
+        "C005510": 30,  // Account 2 -> 30% Margin
         "1003": 32,  // Account 3 -> 32% Margin
         "1004": 35   // Account 4 -> 35% Margin
     },
