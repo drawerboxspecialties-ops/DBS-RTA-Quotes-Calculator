@@ -1,40 +1,49 @@
 // formulas.js - Isolated RTA Cabinet Cost Configurations & Financial Logic
 
 export const FORMULA_CONFIG = {
-    // Baseline fallback parameters if no account match is found
+    // Baseline fallback parameter if an account number isn't listed below
     defaults: {
         marginPercentage: 40
     },
 
-    // 1. Account-Specific Default Margin Matrix
-    // Add or adjust your shop's customer account numbers and specific margins here
-    accountMargins: {
-        "1001": 35,  // Account 1 -> 35% Margin
-        "C005510": 30,  // Account 2 -> 30% Margin
-        "1003": 32,  // Account 3 -> 32% Margin
-        "1004": 35   // Account 4 -> 35% Margin
-    },
+    // 1. Grouped Account Margin Matrix
+    // Group your accounts into clean lists under their designated margin rate
+    marginGroups: [
+        {
+            margin: 35,
+            accounts: ["1", "1004", "1015", "1022", "2014"] // All these accounts get 35%
+        },
+        {
+            margin: 30,
+            accounts: ["C005510", "1008", "1099"]                 // All these accounts get 30%
+        },
+        {
+            margin: 32,
+            accounts: ["1003", "1105", "2001"]                 // All these accounts get 32%
+        }
+    ],
 
     /**
-     * Looks up if a specific account number has a contracted margin tier
+     * Loops through the grouped margin lists to look for an account match
      * @param {string|number} accountNum - Raw account identifier from the UI
      */
     getMarginForAccount(accountNum) {
         if (!accountNum) return this.defaults.marginPercentage;
         
-        // Clean up the input string for exact matching consistency
+        // Clean up formatting to prevent casing or spacing errors
         const cleanAccount = accountNum.toString().trim().toLowerCase();
         
-        const match = Object.keys(this.accountMargins).find(
-            key => key.toLowerCase() === cleanAccount
+        // Look for a group where the accounts array includes this account number
+        const matchedGroup = this.marginGroups.find(group => 
+            group.accounts.some(acc => acc.toString().trim().toLowerCase() === cleanAccount)
         );
         
-        return match ? this.accountMargins[match] : this.defaults.marginPercentage;
+        // If a match is found, return that group's margin; otherwise, drop back to shop default (40)
+        return matchedGroup ? matchedGroup.margin : this.defaults.marginPercentage;
     },
 
     /**
      * Executes pricing matrix math based on shop specifications
-     * @param {Object} data - Form entry variables gathered from the UI
      */
     calculateQuote(data) {
         const totalSqFt = parseFloat(data.totalSqFt) || 0;
